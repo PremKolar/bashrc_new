@@ -1,0 +1,36 @@
+function EXT_COLOR () { echo -ne "\[\033[38;5;$1m\]"; }
+function WC () {
+files=`ls  ./ | wc -w`
+let TotalBytes=0
+for Bytes in $(ls -l | grep "^-" | awk '{ print $5 }')
+do
+   let TotalBytes=$TotalBytes+$Bytes
+done
+if [ $TotalBytes -lt 1024 ]; then
+   TotalSize=$(echo -e "scale=3 \n$TotalBytes \nquit" | bc)
+   suffix="b"
+elif [ $TotalBytes -lt 1048576 ]; then
+   TotalSize=$(echo -e "scale=3 \n$TotalBytes/1024 \nquit" | bc)
+   suffix="kb"
+elif [ $TotalBytes -lt 1073741824 ]; then
+   TotalSize=$(echo -e "scale=3 \n$TotalBytes/1048576 \nquit" | bc)
+   suffix="Mb"
+else
+   TotalSize=$(echo -e "scale=3 \n$TotalBytes/1073741824 \nquit" | bc)
+   suffix="Gb"
+fi
+	echo -ne [${files}f@$TotalSize$suffix]
+}
+
+BLUE="\[\033[0;34m\]"
+WHITE="\[\033[1;37m\]"
+wh="\[\033[0;37m\]"
+
+export PS1="${TITLEBAR}\
+`EXT_COLOR 180`[\j]$WHITE[`EXT_COLOR 173`\$(date +%d.%m.%y-%H:%M)$WHITE]\
+$WHITE[`EXT_COLOR 172`\u`EXT_COLOR 150`:\
+`EXT_COLOR 249`\w:\
+$WHITE]\n $wh"
+PROMPT_COMMAND=WC
+PS2='-> '
+PS4=' + '
